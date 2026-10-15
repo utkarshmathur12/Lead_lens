@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LeadLens · Acquisition lead triage</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--ink:#14181f;--mute:#667085;--line:#e4e7ec;--brand:#2f5bea;--brand-ink:#fff;
+--A:#12805c;--B:#2f5bea;--C:#b7791f;--D:#98a2b3;--shadow:0 1px 2px rgba(16,24,40,.06)}
+@media(prefers-color-scheme:dark){:root{--bg:#0e1116;--card:#171b22;--ink:#e8ebf0;--mute:#98a2b3;--line:#262c36;--brand:#6c8cff;--brand-ink:#0e1116;--A:#3ecf9a;--B:#6c8cff;--C:#e3b341;--D:#7d8798;--shadow:none}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{display:flex;align-items:center;gap:12px;padding:14px 24px;background:var(--card);border-bottom:1px solid var(--line);flex-wrap:wrap}
+h1{font-size:18px;margin:0;letter-spacing:-.2px}h1 span{color:var(--brand)}
+.sub{color:var(--mute);font-size:12px}.sp{flex:1}
+button,select,input{font:inherit;color:inherit}
+.btn{border:1px solid var(--line);background:var(--card);padding:7px 12px;border-radius:8px;cursor:pointer}
+.btn:hover{border-color:var(--brand)}.btn.pri{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+main{max-width:1280px;margin:0 auto;padding:20px 24px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow)}
+.stat b{display:block;font-size:22px}.stat small{color:var(--mute)}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.bar input,.bar select{border:1px solid var(--line);background:var(--card);padding:7px 10px;border-radius:8px}
+.bar input[type=search]{min-width:240px}
+.chips{display:flex;gap:6px}.chip{padding:5px 11px;border-radius:999px;border:1px solid var(--line);background:var(--card);cursor:pointer;font-size:13px}
+.chip.on{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.tablewrap{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow-x:auto;box-shadow:var(--shadow)}
+table{border-collapse:collapse;width:100%;min-width:860px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:12px;color:var(--mute);font-weight:600;cursor:pointer;user-select:none;position:sticky;top:0;background:var(--card)}
+tbody tr{cursor:pointer}tbody tr:hover{background:color-mix(in srgb,var(--brand) 6%,transparent)}
+td.name{font-weight:600;white-space:normal;max-width:260px}td.name small{display:block;color:var(--mute);font-weight:400}
+.pill{display:inline-block;min-width:34px;text-align:center;padding:2px 8px;border-radius:999px;font-weight:700;color:#fff}
+.tA{background:var(--A)}.tB{background:var(--B)}.tC{background:var(--C)}.tD{background:var(--D)}
+.score{font-variant-numeric:tabular-nums;font-weight:600;margin-left:6px}
+.flag{color:var(--C);font-size:12px}.empty{padding:48px;text-align:center;color:var(--mute)}
+.pager{display:flex;gap:8px;align-items:center;justify-content:flex-end;padding:10px 0;color:var(--mute)}
+aside{position:fixed;top:0;right:0;height:100%;width:min(460px,100%);background:var(--card);border-left:1px solid var(--line);box-shadow:-8px 0 24px rgba(0,0,0,.12);transform:translateX(100%);transition:transform .2s;overflow:auto;padding:20px;z-index:5}
+aside.open{transform:none}aside h2{margin:0 0 2px;font-size:18px}
+.row{display:grid;grid-template-columns:110px 1fr;gap:4px 10px;margin:12px 0}.row div:nth-child(odd){color:var(--mute)}
+.cat{margin:8px 0}.cat .t{display:flex;justify-content:space-between;font-size:13px}
+.meter{height:6px;background:var(--line);border-radius:6px;overflow:hidden;margin:3px 0}.meter i{display:block;height:100%;background:var(--brand)}
+.cat ul{margin:2px 0 0;padding-left:16px;color:var(--mute);font-size:12px}
+textarea{width:100%;min-height:150px;border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:8px;font:inherit}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;z-index:9}.modal.open{display:flex}
+.modal .box{background:var(--card);border-radius:14px;padding:20px;width:min(560px,94%);max-height:90vh;overflow:auto}
+.modal label{display:block;margin:10px 0 3px;font-weight:600;font-size:13px}.modal input{width:100%;border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:7px 9px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:8px;display:none;z-index:20}
+.hero{background:var(--card);border:1px dashed var(--line);border-radius:14px;padding:40px;text-align:center}
+.hero h2{margin:0 0 6px}.hero p{color:var(--mute);max-width:520px;margin:6px auto 16px}
+</style>
+</head>
+<body>
+<header>
+  <div><h1>Lead<span>Lens</span></h1><div class="sub">Rank, clean and act on acquisition leads, with the reason behind every score</div></div>
+  <div class="sp"></div>
+  <button class="btn" id="icpBtn">⚙ Target profile</button>
+  <label class="btn" for="file">⬆ Import CSV</label><input id="file" type="file" accept=".csv" hidden>
+  <button class="btn pri" id="exportBtn">⬇ Export filtered</button>
+</header>
+<main>
+  <section class="stats" id="stats"></section>
+  <div id="app"></div>
+</main>
+<aside id="drawer"></aside>
+<div class="modal" id="icpModal"><div class="box" id="icpBox"></div></div>
+<div id="toast"></div>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money=n=>n==null?"–":n>=1e6?"$"+(n/1e6).toFixed(1)+"M":"$"+Math.round(n/1e3)+"k";
+const st={q:"",tier:new Set(),min_score:0,state:"",status:"",has_email:false,sort:"score",dir:"desc",offset:0,limit:50,total:0,items:[],stats:null};
+function toast(m){const t=$("#toast");t.textContent=m;t.style.display="block";clearTimeout(t._h);t._h=setTimeout(()=>t.style.display="none",2600)}
+async function api(path,opts){const r=await fetch(path,opts);if(!r.ok){let d="";try{d=(await r.json()).detail}catch{}throw new Error(d||r.statusText)}return r.json()}
+const qs=(all)=>{const p=new URLSearchParams();if(st.q)p.set("q",st.q);if(st.tier.size)p.set("tier",[...st.tier].join(","));
+ if(st.min_score)p.set("min_score",st.min_score);if(st.state)p.set("state",st.state);if(st.status)p.set("status",st.status);
+ if(st.has_email)p.set("has_email","true");if(!all){p.set("sort",st.sort);p.set("dir",st.dir);p.set("limit",st.limit);p.set("offset",st.offset)}return p.toString()};
+async function loadStats(){st.stats=await api("/api/stats");const s=st.stats,t=s.tiers;
+ $("#stats").innerHTML=[["Leads",s.total],["Tier A",t.A||0],["Tier B",t.B||0],["Avg score",s.avg_score],["With email",s.with_email]]
+ .map(([k,v])=>`<div class="stat"><b>${v}</b><small>${k}</small></div>`).join("")}
+async function load(){const d=await api("/api/leads?"+qs());st.items=d.items;st.total=d.total;render()}
+function render(){
+ if(!st.stats||!st.stats.total){$("#app").innerHTML=`<div class="hero"><h2>Turn a raw lead export into a ranked call list</h2>
+ <p>Import a CSV from SaaSquatch, Apollo or Google Maps. LeadLens cleans it, removes duplicates, and scores every company against your target profile, explaining each score.</p>
+ <button class="btn pri" id="sampleBtn">Load synthetic sample (300 rows)</button></div>`;$("#sampleBtn").onclick=loadSample;return}
+ const states=st.stats.states.map(s=>`<option ${st.state===s?"selected":""}>${s}</option>`).join("");
+ const th=(k,l)=>`<th data-s="${k}">${l}${st.sort===k?(st.dir==="desc"?" ↓":" ↑"):""}</th>`;
+ const rows=st.items.map(l=>`<tr data-id="${l.id}"><td><span class="pill t${l.tier}">${l.tier}</span><span class="score">${l.score}</span></td>
+ <td class="name">${esc(l.company)}<small>${esc(l.industry||"")} · ${esc(l.city||"")}${l.state?", "+esc(l.state):""}</small></td>
+ <td>${esc(l.owner_name||"–")}</td><td>${l.employees??"–"}</td><td>${money(l.revenue)}</td>
+ <td>${esc(l.email||"–")}</td><td>${esc(l.status)}</td><td class="flag">${esc(l.flags.join(", "))}</td></tr>`).join("");
+ $("#app").innerHTML=`<div class="bar">
+  <input type="search" id="q" placeholder="Search company, owner, city…" value="${esc(st.q)}">
+  <div class="chips">${["A","B","C","D"].map(t=>`<span class="chip ${st.tier.has(t)?"on":""}" data-t="${t}">Tier ${t}</span>`).join("")}</div>
+  <select id="state"><option value="">All states</option>${states}</select>
+  <select id="status"><option value="">Any status</option>${["new","contacted","qualified","rejected"].map(s=>`<option ${st.status===s?"selected":""}>${s}</option>`).join("")}</select>
+  <label><input type="checkbox" id="he" ${st.has_email?"checked":""}> has email</label>
+  <span class="sp"></span><span class="sub">${st.total} match</span></div>
+ <div class="tablewrap"><table><thead><tr>${th("score","Fit")}${th("company","Company")}<th>Owner</th>${th("employees","Staff")}${th("revenue","Revenue")}<th>Email</th><th>Status</th><th>Flags</th></tr></thead>
+ <tbody>${rows||""}</tbody></table>${rows?"":'<div class="empty">No leads match these filters.</div>'}</div>
+ <div class="pager"><button class="btn" id="prev" ${st.offset?"":"disabled"}>←</button>
+ <span>${st.total?st.offset+1:0}–${Math.min(st.offset+st.limit,st.total)} of ${st.total}</span>
+ <button class="btn" id="next" ${st.offset+st.limit<st.total?"":"disabled"}>→</button></div>`;
+ let h;$("#q").oninput=e=>{clearTimeout(h);h=setTimeout(()=>{st.q=e.target.value;st.offset=0;refresh(true)},220)};
+ document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{const t=c.dataset.t;st.tier.has(t)?st.tier.delete(t):st.tier.add(t);st.offset=0;refresh()});
+ $("#state").onchange=e=>{st.state=e.target.value;st.offset=0;refresh()};$("#status").onchange=e=>{st.status=e.target.value;st.offset=0;refresh()};
+ $("#he").onchange=e=>{st.has_email=e.target.checked;st.offset=0;refresh()};
+ document.querySelectorAll("th[data-s]").forEach(t=>t.onclick=()=>{const k=t.dataset.s;st.dir=st.sort===k&&st.dir==="desc"?"asc":"desc";st.sort=k;refresh()});
+ document.querySelectorAll("tbody tr").forEach(r=>r.onclick=()=>openLead(+r.dataset.id));
+ $("#prev").onclick=()=>{st.offset=Math.max(0,st.offset-st.limit);refresh()};$("#next").onclick=()=>{st.offset+=st.limit;refresh()};
+ if(window._keep){const q=$("#q");q.focus();q.setSelectionRange(q.value.length,q.value.length);window._keep=false}}
+async function refresh(keep){window._keep=!!keep;await load()}
+async function loadSample(){try{const r=await api("/api/sample",{method:"POST"});toast(`Imported ${r.new_leads} leads · ${r.duplicates_removed_in_file} duplicates removed`);await loadStats();await load()}catch(e){toast(e.message)}}
+$("#file").onchange=async e=>{const f=e.target.files[0];if(!f)return;const fd=new FormData();fd.append("file",f);
+ try{const r=await api("/api/import",{method:"POST",body:fd});toast(`${r.new_leads} new · ${r.merged_into_existing} merged · ${r.duplicates_removed_in_file} duplicates removed · ${r.invalid_rows} skipped`);await loadStats();await load()}catch(err){toast(err.message)}e.target.value=""};
+$("#exportBtn").onclick=()=>{location.href="/api/export.csv?"+qs(true)};
+async function openLead(id){const l=await api("/api/leads/"+id);const d=$("#drawer");
+ const cats=Object.entries(l.breakdown).map(([k,b])=>`<div class="cat"><div class="t"><span>${esc(k)}</span><span>${b.points}/${b.max}</span></div>
+  <div class="meter"><i style="width:${b.max?b.points/b.max*100:0}%"></i></div><ul>${b.notes.map(n=>`<li>${esc(n)}</li>`).join("")}</ul></div>`).join("");
+ const en=l.enrichment;
+ d.innerHTML=`<button class="btn" id="x" style="float:right">✕</button><h2>${esc(l.company)}</h2>
+ <div class="sub">${esc(l.industry||"")} · ${esc(l.city||"")}${l.state?", "+esc(l.state):""}</div>
+ <p><span class="pill t${l.tier}">${l.tier}</span><span class="score">${l.score}/100</span> <span class="sub">data confidence ${Math.round(l.confidence*100)}%</span></p>
+ <div class="row"><div>Owner</div><div>${esc(l.owner_name||"–")}</div><div>Email</div><div>${esc(l.email||"–")}</div><div>Phone</div><div>${esc(l.phone||"–")}</div>
+ <div>Website</div><div>${esc(l.domain||"–")}</div><div>Founded</div><div>${l.year_founded||"–"}</div><div>Rating</div><div>${l.rating?l.rating+"★ ("+(l.review_count||0)+")":"–"}</div>
+ <div>Status</div><div><select id="stSel">${["new","contacted","qualified","rejected"].map(s=>`<option ${l.status===s?"selected":""}>${s}</option>`).join("")}</select></div></div>
+ <h3 style="margin:14px 0 4px">Why this score</h3>${cats}
+ ${en?`<p class="sub">Enrichment: ${esc(en.status)}${en.emails?.length?" · found "+esc(en.emails.join(", ")):""}</p>`:""}
+ <div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap"><button class="btn" id="enr" ${l.domain?"":"disabled"}>🔎 Enrich from website</button><button class="btn pri" id="out">✉ Draft outreach</button></div>
+ <div id="draft"></div>`;
+ d.classList.add("open");$("#x").onclick=()=>d.classList.remove("open");
+ $("#stSel").onchange=async e=>{await api(`/api/leads/${id}/status`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({status:e.target.value})});toast("Status saved");loadStats();load()};
+ $("#enr").onclick=async()=>{$("#enr").textContent="Checking site…";try{await api(`/api/leads/${id}/enrich`,{method:"POST"});toast("Enriched and re-scored");await load();openLead(id)}catch(e){toast(e.message);$("#enr").textContent="🔎 Enrich from website"}};
+ $("#out").onclick=async()=>{const o=await api(`/api/leads/${id}/outreach`,{method:"POST"});
+  $("#draft").innerHTML=`<label class="sub">Subject</label><input id="sj" style="width:100%;margin-bottom:6px" value="${esc(o.subject)}"><textarea id="bd">${esc(o.email)}</textarea>
+  <button class="btn" id="cp">Copy email</button> <button class="btn" id="cc">Copy call opener</button>`;
+  $("#cp").onclick=()=>{navigator.clipboard.writeText("Subject: "+$("#sj").value+"\n\n"+$("#bd").value);toast("Copied")};
+  $("#cc").onclick=()=>{navigator.clipboard.writeText(o.call_opener);toast("Copied")}}}
+$("#icpBtn").onclick=async()=>{const {icp}=await api("/api/icp");const b=$("#icpBox");
+ const f=(k,l,t="number")=>`<div><label>${l}</label><input data-k="${k}" type="${t}" value="${esc(icp[k])}"></div>`;
+ b.innerHTML=`<h2 style="margin-top:0">Target profile</h2><div class="sub">Changes re-score every lead instantly.</div>
+ <label>Target industries (comma separated)</label><input data-k="industries" data-list value="${esc(icp.industries.join(", "))}">
+ <label>Target states (blank = anywhere)</label><input data-k="target_states" data-list value="${esc(icp.target_states.join(", "))}">
+ <div class="two">${f("min_employees","Min employees")}${f("max_employees","Max employees")}${f("min_revenue","Min revenue ($)")}${f("max_revenue","Max revenue ($)")}
+ ${f("min_years_in_business","Min years in business")}${f("min_rating","Min rating")}</div>
+ <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px"><button class="btn" id="cancel">Cancel</button><button class="btn pri" id="save">Save & re-score</button></div>`;
+ $("#icpModal").classList.add("open");$("#cancel").onclick=()=>$("#icpModal").classList.remove("open");
+ $("#save").onclick=async()=>{const out={};b.querySelectorAll("input").forEach(i=>{const k=i.dataset.k;out[k]=i.hasAttribute("data-list")?i.value.split(",").map(s=>s.trim()).filter(Boolean).map(s=>k==="target_states"?s.toUpperCase():s):Number(i.value)});
+  try{await api("/api/icp",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(out)});$("#icpModal").classList.remove("open");toast("Re-scored");await loadStats();await load()}catch(e){toast(e.message)}}};
+(async()=>{await loadStats();await load()})();
+</script>
+</body>
+</html>
