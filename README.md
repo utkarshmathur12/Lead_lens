@@ -4,7 +4,7 @@
 
 Built for the Caprae Capital Full Stack Developer challenge (5-hour build).
 
-**Live demo:** https://lead-lens.onrender.com (the first load can take about a minute; click "Load synthetic sample" to start)
+git clone https://github.com/utkarshmathur12/Lead_lens.git && cd Lead_lens
 
 ## The problem I chose
 
