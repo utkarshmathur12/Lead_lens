@@ -4,6 +4,8 @@
 
 Built for the Caprae Capital Full Stack Developer challenge (5-hour build).
 
+**Live demo:** https://lead-lens.onrender.com (the first load can take about a minute; click "Load synthetic sample" to start)
+
 ## The problem I chose
 
 SaaSquatch-style tools return long lists. The expensive part for a searcher is what comes next: cleaning the export, spotting duplicates, working out which owner-led businesses are actually worth a call, and writing the outreach. A public G2 review of SaaSquatch also notes that filtering can take up to a minute. So I went deep on one thing (the **quality-first** option in the brief): **fast, explainable lead prioritization.**
@@ -24,7 +26,7 @@ SaaSquatch-style tools return long lists. The expensive part for a searcher is w
 ## Quick start
 
 ```bash
-git clone <your-repo-url> && cd leadlens
+git clone https://github.com/utkarshmathur12/Lead_lens.git && cd Lead_lens
 python -m venv .venv && source .venv/bin/activate     # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 python scripts/generate_sample_data.py                 # optional: regenerate the synthetic dataset
